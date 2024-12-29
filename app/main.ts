@@ -16,7 +16,6 @@ const server: net.Server = net.createServer((connection: net.Socket) => {
             bufferCommand = bufferCommand.slice(newlineIndex + 1); // Remove the processed command from the buffer
             console.log(command);
             console.log(`Received command: ${command}`);
-
             // Respond to the command
             if (command.trim() === 'PING') {
                 connection.write('+PONG\r\n');
