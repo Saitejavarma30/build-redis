@@ -9,14 +9,17 @@ const server: net.Server = net.createServer((connection: net.Socket) => {
 
     connection.on('data', (data) => {
         bufferCommand += data.toString();
-        if (bufferCommand.endsWith('\r\n')) {
-            const command = bufferCommand.trim();
-            bufferCommand = '';
+        let newlineIndex;
+        while ((newlineIndex = bufferCommand.indexOf('\n')) !== -1) {
+            // Extract the full command up to the newline
+            const command = bufferCommand.slice(0, newlineIndex).trim(); // Trim to remove \r or spaces
+            bufferCommand = bufferCommand.slice(newlineIndex + 1); // Remove the processed command from the buffer
+            console.log(command);
+            console.log(`Received command: ${command}`);
+
+            // Respond to the command
             if (command === 'PING') {
                 connection.write('+PONG\r\n');
-            } else if (command.startsWith('ECHO')) {
-                const message = command.substring(5).trim();
-                connection.write(`+${message}\r\n`);
             } else {
                 connection.write('-ERR unknown command\r\n');
             }
