@@ -18,10 +18,8 @@ const server: net.Server = net.createServer((connection: net.Socket) => {
             console.log(`Received command: ${command}`);
 
             // Respond to the command
-            if (command === 'PING') {
+            if (command.trim() === 'PING') {
                 connection.write('+PONG\r\n');
-            } else {
-                connection.write('-ERR unknown command\r\n');
             }
         }
     });
