@@ -49,6 +49,7 @@ const values:{ [key: string]: string } =  {}
                     if(arrayOfCommands[3] && arrayOfCommands[3] === 'PX'){
                         if(arrayOfCommands[4]){
                             setTimeout(() => {
+                                console.log('deleting')
                                 delete values[arrayOfCommands[1]]
                             }, parseInt(arrayOfCommands[4]))
                          }
