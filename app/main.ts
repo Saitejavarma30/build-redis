@@ -33,20 +33,24 @@ const values:{ [key: string]: string } =  {}
         for(let i=0; i<arrayOfCommands.length; i++) {
             if(arrayOfCommands[i].toUpperCase() === 'PING'){
                     connection.write('+PONG\r\n')
+                bufferCommand = ''
                 break
             }
             if(arrayOfCommands[0].toUpperCase() === 'ECHO'){
                 connection.write(`$${arrayOfCommands[1].length}\r\n${arrayOfCommands[1]}\r\n`)
+                bufferCommand = ''
                 break
             }
             if(arrayOfCommands[0].toUpperCase() === 'SET'){
                 if (arrayOfCommands[1] && arrayOfCommands[2]){
                     values[arrayOfCommands[1]] =  arrayOfCommands[2]
                     connection.write('+OK\r\n')
+                    bufferCommand = ''
                     break
                 }
                 else {
                     connection.write('-ERR\r\n')
+                    bufferCommand = ''
                     break
                 }
             }
@@ -54,9 +58,13 @@ const values:{ [key: string]: string } =  {}
                 if(arrayOfCommands[1]){
                     if(values[arrayOfCommands[1]]) {
                         connection.write(`$${values[arrayOfCommands[1]].length}\r\n${values[arrayOfCommands[1]]}\r\n`)
+                        bufferCommand = ''
+                        break
                     }
                     else{
                         connection.write('$-1\r\n')
+                        bufferCommand = ''
+                        break
                     }
                 }
             }
