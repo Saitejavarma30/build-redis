@@ -9,19 +9,36 @@ const server: net.Server = net.createServer((connection: net.Socket) => {
 
     connection.on('data', (data) => {
         bufferCommand += data.toString();
-        let newlineIndex;
-        while ((newlineIndex = bufferCommand.indexOf('\n')) !== -1) {
-            // Extract the full command up to the newline
-            const command = bufferCommand.slice(0, newlineIndex).trim(); // Trim to remove \r or spaces
-            bufferCommand = bufferCommand.slice(newlineIndex + 1); // Remove the processed command from the buffer
-            console.log(command);
-            console.log(`Received command: ${command}`);
-            // Respond to the command
-            if (command.trim() === 'PING') {
-                connection.write('+PONG\r\n');
+
+        // const commandArray = []
+        bufferCommand = bufferCommand.replace(/\\r/g, '\r').replace(/\\n/g, '\n');
+        const commandValue = bufferCommand.split('\r\n');
+        while (commandValue.length > 0 && commandValue[commandValue.length - 1] === '') {
+            commandValue.pop();
+        }
+        console.log(commandValue);
+        const commandLength = commandValue[0].split('*')[1];
+        commandValue.shift()
+        const arrayOfCommands: string[] = [];
+        for(let i=0; i< commandValue.length; i=i+2) {
+            if(commandValue[i].includes('$') &&  commandValue[i+1] !== undefined) {
+                if(commandValue[i].split('$')[1]  === commandValue[i+1].length.toString()) {
+                    arrayOfCommands.push(commandValue[i + 1])
+                }
+            }
+        }
+        console.log(arrayOfCommands)
+
+        for(let i=0; i<arrayOfCommands.length; i++) {
+            if(arrayOfCommands[0].toUpperCase() === 'ECHO'){
+                connection.write(`$${arrayOfCommands[1].length}\r\n${arrayOfCommands[1]}\r\n`)
             }
         }
     });
+    connection.on('end', () => {
+        console.log('Connection ended');
+    });
+
 });
 //
 server.listen(6379, "127.0.0.1");
