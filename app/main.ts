@@ -46,12 +46,19 @@ const values:{ [key: string]: string } =  {}
                     values[arrayOfCommands[1]] =  arrayOfCommands[2]
                     connection.write('+OK\r\n')
                     bufferCommand = ''
+                    if(arrayOfCommands[3] && arrayOfCommands[3] === 'PX'){
+                        if(arrayOfCommands[4]){
+                            setTimeout(() => {
+                                delete values[arrayOfCommands[1]]
+                            }, parseInt(arrayOfCommands[4]))
+                         }
+                    }
                     break
                 }
                 else {
-                    connection.write('-ERR\r\n')
-                    bufferCommand = ''
-                    break
+                        connection.write('-ERR\r\n')
+                        bufferCommand = ''
+                        break
                 }
             }
             if(arrayOfCommands[0].toUpperCase() === 'GET'){
