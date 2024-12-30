@@ -30,6 +30,15 @@ const server: net.Server = net.createServer((connection: net.Socket) => {
         console.log(arrayOfCommands)
 
         for(let i=0; i<arrayOfCommands.length; i++) {
+            if(arrayOfCommands[0].toUpperCase() === 'PING'){
+                if(arrayOfCommands[1] === undefined || arrayOfCommands[1] === '') {
+                    connection.write('+PONG\r\n')
+                }
+                else {
+                    connection.write(`+${arrayOfCommands[1]}\r\n`)
+                }
+
+            }
             if(arrayOfCommands[0].toUpperCase() === 'ECHO'){
                 connection.write(`$${arrayOfCommands[1].length}\r\n${arrayOfCommands[1]}\r\n`)
                 break
