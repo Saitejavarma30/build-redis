@@ -70,6 +70,7 @@ const values:{ [key: string]: string } =  {}
                         break
                     }
                     else{
+                        console.log('deleting1')
                         connection.write('$-1\r\n')
                         bufferCommand = ''
                         break
