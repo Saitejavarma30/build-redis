@@ -6,6 +6,7 @@ console.log("Logs from your program will appear here!");
 // Uncomment this block to pass the first stage
 const server: net.Server = net.createServer((connection: net.Socket) => {
     let bufferCommand = '';
+const values:{ [key: string]: string } =  {}
 
     connection.on('data', (data) => {
         bufferCommand += data.toString();
@@ -37,6 +38,27 @@ const server: net.Server = net.createServer((connection: net.Socket) => {
             if(arrayOfCommands[0].toUpperCase() === 'ECHO'){
                 connection.write(`$${arrayOfCommands[1].length}\r\n${arrayOfCommands[1]}\r\n`)
                 break
+            }
+            if(arrayOfCommands[0].toUpperCase() === 'SET'){
+                if (arrayOfCommands[1] && arrayOfCommands[2]){
+                    values[arrayOfCommands[1]] =  arrayOfCommands[2]
+                    connection.write('+OK\r\n')
+                    break
+                }
+                else {
+                    connection.write('-ERR\r\n')
+                    break
+                }
+            }
+            if(arrayOfCommands[0].toUpperCase() === 'GET'){
+                if(arrayOfCommands[1]){
+                    if(values[arrayOfCommands[1]]) {
+                        connection.write(`$${values[arrayOfCommands[1]].length}\r\n${values[arrayOfCommands[1]]}\r\n`)
+                    }
+                    else{
+                        connection.write('$-1\r\n')
+                    }
+                }
             }
         }
     });
