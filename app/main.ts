@@ -43,17 +43,18 @@ const values:{ [key: string]: string } =  {}
             }
             if(arrayOfCommands[0].toUpperCase() === 'SET'){
                 if (arrayOfCommands[1] && arrayOfCommands[2]){
-                    values[arrayOfCommands[1]] =  arrayOfCommands[2]
-                    connection.write('+OK\r\n')
-                    bufferCommand = ''
                     if(arrayOfCommands[3] && arrayOfCommands[3] === 'PX'){
                         if(arrayOfCommands[4]){
                             setTimeout(() => {
                                 console.log('deleting')
                                 delete values[arrayOfCommands[1]]
                             }, parseInt(arrayOfCommands[4]))
-                         }
+                        }
                     }
+                    values[arrayOfCommands[1]] =  arrayOfCommands[2]
+                    connection.write('+OK\r\n')
+                    bufferCommand = ''
+
                     break
                 }
                 else {
