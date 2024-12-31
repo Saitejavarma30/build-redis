@@ -6,7 +6,7 @@ console.log("Logs from your program will appear here!");
 // Uncomment this block to pass the first stage
 const server: net.Server = net.createServer((connection: net.Socket) => {
     let bufferCommand = '';
-const values:{ [key: string]: {value: string; expiry?:number} } =  {}
+const values:{ [key: string]: string } =  {}
 
     connection.on('data', (data) => {
         bufferCommand += data.toString();
@@ -42,48 +42,39 @@ const values:{ [key: string]: {value: string; expiry?:number} } =  {}
                 break
             }
             if(arrayOfCommands[0].toUpperCase() === 'SET'){
-                let expiry = undefined
                 if (arrayOfCommands[1] && arrayOfCommands[2]){
                     if(arrayOfCommands[3] && arrayOfCommands[3].toUpperCase() === 'PX'){
                         if(arrayOfCommands[4]){
-                            expiry = Date.now() + parseInt(arrayOfCommands[4])
+                            setTimeout(() => {
+                                console.log('deleting')
+                                delete values[arrayOfCommands[1]]
+                            }, parseInt(arrayOfCommands[4]))
                         }
                     }
-                    values[arrayOfCommands[1]] =  {value:arrayOfCommands[2], expiry: expiry}
-                    connection.write('+OK\r\n')
-                    bufferCommand = ''
-
-                    break
+                values[arrayOfCommands[1]] =  arrayOfCommands[2]
+                connection.write('+OK\r\n')
+                bufferCommand = ''
+                break
                 }
-                else {
-                        connection.write('-ERR\r\n')
+            else {
+                connection.write('-ERR\r\n')
+                bufferCommand = ''
+                break
+            }
+        }
+            if(arrayOfCommands[0].toUpperCase() === 'GET'){
+                if(arrayOfCommands[1]){
+                    if(values[arrayOfCommands[1]]) {
+                        connection.write(`$${values[arrayOfCommands[1]].length}\r\n${values[arrayOfCommands[1]]}\r\n`)
                         bufferCommand = ''
                         break
-                }
-            }
-            if(arrayOfCommands[0].toUpperCase() === 'GET'){
-
-                if(arrayOfCommands[1]){
-                    const entry = values[arrayOfCommands[1]];
-                    console.log(Date.now())
-                    console.log(JSON.stringify(entry))
-                    if(entry){
-                        if(entry.expiry && entry.expiry >= Date.now()){
-                            delete values[arrayOfCommands[1]];
-                            connection.write('-1\r\n')
-                        }
-                        else{
-                            connection.write(`$${entry.value.length}\r\n${entry.value}\r\n`)
-                        }
                     }
                     else{
+                        console.log('deleting1')
                         connection.write('$-1\r\n')
+                        bufferCommand = ''
+                        break
                     }
-                    break
-                }
-                else{
-                    connection.write('-ERR\r\n')
-                    break
                 }
             }
         }
