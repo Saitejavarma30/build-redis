@@ -44,7 +44,7 @@ const values:{ [key: string]: {value: string; expiry?:number} } =  {}
             if(arrayOfCommands[0].toUpperCase() === 'SET'){
                 let expiry = undefined
                 if (arrayOfCommands[1] && arrayOfCommands[2]){
-                    if(arrayOfCommands[3] && arrayOfCommands[3] === 'PX'){
+                    if(arrayOfCommands[3] && arrayOfCommands[3].toUpperCase() === 'PX'){
                         if(arrayOfCommands[4]){
                             expiry = Date.now() + parseInt(arrayOfCommands[4])
                         }
