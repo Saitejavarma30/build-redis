@@ -62,9 +62,11 @@ const values:{ [key: string]: {value: string; expiry?:number} } =  {}
                 }
             }
             if(arrayOfCommands[0].toUpperCase() === 'GET'){
-                console.log(Date.now())
+
                 if(arrayOfCommands[1]){
                     const entry = values[arrayOfCommands[1]];
+                    console.log(Date.now())
+                    console.log(JSON.stringify(entry))
                     if(entry){
                         if(entry.expiry && entry.expiry >= Date.now()){
                             delete values[arrayOfCommands[1]];
