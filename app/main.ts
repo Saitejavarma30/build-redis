@@ -75,6 +75,7 @@ const values:{ [key: string]: {value: string; expiry?:number} } =  {}
                         delete values[key];
                         connection.write('$-1\r\n');
                     } else {
+                        console.log(JSON.stringify(entry));
                         connection.write(`$${entry.value.length}\r\n${entry.value}\r\n`);
                     }
                 } else {
