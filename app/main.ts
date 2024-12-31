@@ -49,7 +49,7 @@ const values:{ [key: string]: {value: string; expiry?:number} } =  {}
                             expiry = Date.now() + parseInt(arrayOfCommands[4])
                         }
                     }
-                    values[arrayOfCommands[1]] =  {value:arrayOfCommands[2], expiry}
+                    values[arrayOfCommands[1]] =  {value:arrayOfCommands[2], expiry: expiry}
                     connection.write('+OK\r\n')
                     bufferCommand = ''
 
