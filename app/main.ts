@@ -62,6 +62,7 @@ const values:{ [key: string]: {value: string; expiry?:number} } =  {}
                 }
             }
             if(arrayOfCommands[0].toUpperCase() === 'GET'){
+                console.log(Date.now())
                 if(arrayOfCommands[1]){
                     const entry = values[arrayOfCommands[1]];
                     if(entry){
