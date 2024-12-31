@@ -46,7 +46,7 @@ const values:{ [key: string]: {value: string; expiry?:number} } =  {}
                 if (arrayOfCommands[1] && arrayOfCommands[2]){
                     if(arrayOfCommands[3] && arrayOfCommands[3] === 'PX'){
                         if(arrayOfCommands[4]){
-                            expiry = Date.now() + parseInt(arrayOfCommands[4],10)
+                            expiry = Date.now() + parseInt(arrayOfCommands[4])
                         }
                     }
                     values[arrayOfCommands[1]] =  {value:arrayOfCommands[2], expiry}
@@ -62,24 +62,25 @@ const values:{ [key: string]: {value: string; expiry?:number} } =  {}
                 }
             }
             if(arrayOfCommands[0].toUpperCase() === 'GET'){
-                const key = arrayOfCommands[1]
-                if (!key) {
-                    connection.write('-ERR Missing key for GET\r\n');
-                    return;
-                }
-
-                const entry = values[key];
-                if (entry) {
-                    if (entry.expiry && entry.expiry < Date.now()) {
-                        // Key has expired
-                        delete values[key];
-                        connection.write('$-1\r\n');
-                    } else {
-                        console.log(JSON.stringify(entry));
-                        connection.write(`$${entry.value.length}\r\n${entry.value}\r\n`);
+                if(arrayOfCommands[1]){
+                    const entry = values[arrayOfCommands[1]];
+                    if(entry){
+                        if(entry.expiry && entry.expiry >= Date.now()){
+                            delete values[arrayOfCommands[1]];
+                            connection.write('-1\r\n')
+                        }
+                        else{
+                            connection.write(`$${entry.value.length}\r\n${entry.value}\r\n`)
+                        }
                     }
-                } else {
-                    connection.write('$-1\r\n'); // Key not found
+                    else{
+                        connection.write('$-1\r\n')
+                    }
+                    break
+                }
+                else{
+                    connection.write('-ERR\r\n')
+                    break
                 }
             }
         }
