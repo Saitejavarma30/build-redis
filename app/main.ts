@@ -6,7 +6,7 @@ console.log("Logs from your program will appear here!");
 // Uncomment this block to pass the first stage
 const server: net.Server = net.createServer((connection: net.Socket) => {
     let bufferCommand = '';
-const values:{ [key: string]: string } =  {}
+const values:{ [key: string]: {value: string; expiry?:number} } =  {}
 
     connection.on('data', (data) => {
         bufferCommand += data.toString();
@@ -42,16 +42,14 @@ const values:{ [key: string]: string } =  {}
                 break
             }
             if(arrayOfCommands[0].toUpperCase() === 'SET'){
+                let expiry = undefined
                 if (arrayOfCommands[1] && arrayOfCommands[2]){
                     if(arrayOfCommands[3] && arrayOfCommands[3] === 'PX'){
                         if(arrayOfCommands[4]){
-                            setTimeout(() => {
-                                console.log('deleting')
-                                delete values[arrayOfCommands[1]]
-                            }, parseInt(arrayOfCommands[4]))
+                            expiry = Date.now() + parseInt(arrayOfCommands[4],10)
                         }
                     }
-                    values[arrayOfCommands[1]] =  arrayOfCommands[2]
+                    values[arrayOfCommands[1]] =  {value:arrayOfCommands[2], expiry}
                     connection.write('+OK\r\n')
                     bufferCommand = ''
 
@@ -64,18 +62,23 @@ const values:{ [key: string]: string } =  {}
                 }
             }
             if(arrayOfCommands[0].toUpperCase() === 'GET'){
-                if(arrayOfCommands[1]){
-                    if(values[arrayOfCommands[1]]) {
-                        connection.write(`$${values[arrayOfCommands[1]].length}\r\n${values[arrayOfCommands[1]]}\r\n`)
-                        bufferCommand = ''
-                        break
+                const key = arrayOfCommands[1]
+                if (!key) {
+                    connection.write('-ERR Missing key for GET\r\n');
+                    return;
+                }
+
+                const entry = values[key];
+                if (entry) {
+                    if (entry.expiry && entry.expiry < Date.now()) {
+                        // Key has expired
+                        delete values[key];
+                        connection.write('$-1\r\n');
+                    } else {
+                        connection.write(`$${entry.value.length}\r\n${entry.value}\r\n`);
                     }
-                    else{
-                        console.log('deleting1')
-                        connection.write('$-1\r\n')
-                        bufferCommand = ''
-                        break
-                    }
+                } else {
+                    connection.write('$-1\r\n'); // Key not found
                 }
             }
         }
